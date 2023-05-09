@@ -39,12 +39,21 @@ class PostController extends Controller
     public function show($id)
     {
         try {
-            return response()->json( 
-                $this->createResponse(200, 'Post found', Post::findOrFail($id)) 
-            );
+            $post = Post::find($id);
+            // $post = Post::findOrFail($id);
+            if ($post) {
+                return response()->json(
+                    $this->createResponse(200, 'Post found', $post) 
+                );
+            } else {
+                return response()->json(
+                    $this->createResponse(404, 'Post not found') 
+                );
+            }
+            
         } catch (\Exception $e) {
             return response()->json(
-                $this->createResponse(500, $e->getMessage())
+                $this->createResponse(500, $e->getCode())
             );
         }
     }
@@ -53,21 +62,13 @@ class PostController extends Controller
         try {
             $post = Post::findOrFail($id);
             $post->update(['title' => $request->title, 'body' => $request->body]);
-            return response()->json([
-                'smartapp' => [
-                    'status' => 'success', 
-                    'message' => 'Post updated successfuly',
-                    'data' => $post
-                ]
-            ]);
+            return response()->json(
+                $this->createResponse(200, 'Post updated succesfuly', $post)
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'smartapp' => [
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                    'data' => null
-                ]
-            ]);
+            return response()->json(
+                $this->createResponse(500, $e->getMessage())
+            );
         }
     }
     public function destroy($id)
@@ -76,31 +77,15 @@ class PostController extends Controller
             $post = Post::findOrFail($id);
             if ($post) {
                 $post->delete();
-                $response = [
-                    'smartapp' => [
-                        'status' => 'success',
-                        'message' => 'Post deleted succesfuly',
-                        'data' => $post,
-                    ]
-                ];
+                $response = $this->createResponse(200, 'Post deleted succesfuly', $post);
             } else {
-                $response = [
-                    'smartapp' => [
-                        'status' => 'error',
-                        'message' => 'Post not found in our databases',
-                        'data' => null
-                    ]
-                ];
+                $response = $this->createResponse(400, 'Post not found');
             }
             return response()->json($response);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'smartapp' => [
-                    'status' => 'error',
-                    'message' => 'Post not found in our databases',
-                    'data' => null
-                ]
-                ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                $this->createResponse(500, $e->getMessage())
+            );
         }
     }
 }

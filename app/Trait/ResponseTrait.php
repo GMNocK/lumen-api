@@ -8,15 +8,15 @@ trait ResponseTrait
 
     protected function createResponse($status = 200, $message, $data = null)
     {
-        [$status_code, $status_message] = $this->getStatus($status);
+        [$status_code, $status_desc] = $this->getStatus($status);
         return $this->response = [
             'smartapp' => [
                 'status' => [
                     'code' => $status_code,
-                    'message' => $status_message 
+                    'description' => $status_desc
                 ],
                 'message' => $message,
-                'data' => $data
+                'result' => $data
             ]
         ];
     }
