@@ -10,8 +10,17 @@ use App\Trait\ResponseTrait;
 class PostController extends Controller
 {
     use ResponseTrait;
-    public function index()
+    
+    public function __construct(Request $request)
     {
+        $request->has('_with_token') ? $this->token_verify($request) : '';
+    }
+    
+    public function index(Request $request)
+    {
+        if (!$this->has_token) {
+            return response()->json( $this->createResponse(403, 'unauthorize') );
+        }
         try {
             return response()->json(  $this->createResponse(200, 'Post Found', Post::all()) );
         } catch (\Exception $e) {
@@ -21,6 +30,9 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+        if (!$this->has_token) {
+            return response()->json( $this->createResponse(403, 'unauthorize') );
+        }
         try {
             $post = Post::create([
                 'title' => $request->title,
@@ -38,6 +50,9 @@ class PostController extends Controller
     }
     public function show($id)
     {
+        if (!$this->has_token) {
+            return response()->json( $this->createResponse(403, 'unauthorize') );
+        }
         try {
             $post = Post::find($id);
             // $post = Post::findOrFail($id);

@@ -3,6 +3,7 @@
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 use App\Http\Controllers\PostController;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,9 +18,19 @@ use App\Http\Controllers\PostController;
 
 $router->group(['prefix' => 'api'], function () use ($router) 
 {
-    $router->get('/posts', 'PostController@index');
-    $router->post('/posts', 'PostController@store');
-    $router->get('/posts/{id}', 'PostController@show');
-    $router->put('/posts/{id}', 'PostController@update');
-    $router->delete('/posts/{id}', 'PostController@destroy');
+    $router->group(['middleware' => 'hasToken'], function () use ($router)
+    {
+        $router->get('/posts', 'PostController@index');
+        $router->post('/posts', 'PostController@store');
+        $router->get('/posts/{id}', 'PostController@show');
+        $router->put('/posts/{id}', 'PostController@update');
+        $router->delete('/posts/{id}', 'PostController@destroy');
+    });
+
+    $router->get('/users', function ()
+    {
+        return response()->json(
+            User::all()
+        );
+    });
 });
